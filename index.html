@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ZeSt Energy Drinks</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <!-- Age Gate - shown on first launch -->
+    <div id="age-gate" class="age-gate">
+        <div class="age-gate-content">
+            <h1>Подтверждение возраста</h1>
+            <p>Для продолжения, пожалуйста, подтвердите, что вам есть 18 лет</p>
+            
+            <div class="age-gate-warning">
+                <strong>Внимание!</strong> Потребление энергетических напитков не рекомендуется лицам младше 18 лет
+            </div>
+            
+            <div class="age-gate-buttons">
+                <button id="age-gate-confirm" class="btn age-gate-confirm btn-block">Мне есть 18 лет</button>
+                <button id="age-gate-deny" class="btn age-gate-deny btn-block">Мне нет 18 лет</button>
+            </div>
+            
+            <div class="age-restriction-badge">18+</div>
+        </div>
+    </div>
+
+    <!-- Main App Content (hidden until age confirmed) -->
+    <div id="app" class="hidden">
+        <!-- Header -->
+        <header class="main-header">
+            <div class="container">
+                <div class="header-top">
+                    <div class="logo">
+                        <h1>ZeSt Market</h1>
+                    </div>
+                    <div class="header-icons">
+                        <button class="icon-btn search-btn">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                        </button>
+                        <button class="icon-btn cart-btn" id="header-cart-btn">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                            <span class="cart-count" id="header-cart-count">0</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="search-bar">
+                    <input type="text" id="search-input" class="search-input" placeholder="Искать товары и категории">
+                    <button class="search-button">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                    </button>
+                </div>
+                
+                <div class="categories">
+                    <div class="category active" data-category="all">
+                        <span>Все товары</span>
+                    </div>
+                    <div class="category" data-category="energy">
+                        <span>Энергетики</span>
+                    </div>
+                    <div class="category" data-category="soft">
+                        <span>Безалкогольные</span>
+                    </div>
+                    <div class="category" data-category="water">
+                        <span>Вода</span>
+                    </div>
+                    <div class="category" data-category="snacks">
+                        <span>Снеки</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main id="main-content">
+            <!-- Catalog will be loaded here by default -->
+            <div id="catalog-page">
+                <div class="container">
+                    <div class="catalog-header">
+                        <h2>Популярные товары</h2>
+                        <span class="age-restriction-badge">18+</span>
+                    </div>
+                    <div id="products-container" class="products-grid">
+                        <!-- Products will be loaded here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ZeSt Club Page -->
+            <div id="club-page" class="hidden">
+                <div class="container">
+                    <div class="club-hero">
+                        <h1>ZeSt Club</h1>
+                        <p class="club-subtitle">Эксклюзивная программа лояльности для настоящих гурманов</p>
+                        <div class="club-price">
+                            <span class="price">350 ₽</span>
+                            <span class="period">/ месяц</span>
+                        </div>
+                        <button id="subscribe-button" class="btn btn-large club-cta">Стать участником</button>
+                        <div class="club-discount-badge">
+                            <span>Экономия до 30%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="club-section">
+                        <h2>Преимущества участников</h2>
+                        <div class="club-benefits">
+                            <div class="benefit-card card">
+                                <div class="benefit-icon">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                                </div>
+                                <h3>Оптовые цены</h3>
+                                <p>Скидки на все товары до 30%</p>
+                            </div>
+                            <div class="benefit-card card">
+                                <div class="benefit-icon">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+                                </div>
+                                <h3>Бесплатная доставка</h3>
+                                <p>По всему городу без минимальной суммы заказа</p>
+                            </div>
+                            <div class="benefit-card card">
+                                <div class="benefit-icon">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-11.5l6 4.5-6 4.5z"/></svg>
+                                </div>
+                                <h3>Эксклюзивные предложения</h3>
+                                <p>Ранний доступ к новинкам и специальным акциям</p>
+                            </div>
+                            <div class="benefit-card card">
+                                <div class="benefit-icon">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-11.5l6 4.5-6 4.5z"/></svg>
+                                </div>
+                                <h3>Персональные подарки</h3>
+                                <p>Подарки ко дню рождения и другим праздникам</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="club-section">
+                        <h2>Как это работает</h2>
+                        <div class="club-steps">
+                            <div class="step-card card">
+                                <div class="step-number">1</div>
+                                <h3>Оформите подписку</h3>
+                                <p>Станьте участником клуба всего за 350 ₽ в месяц</p>
+                            </div>
+                            <div class="step-card card">
+                                <div class="step-number">2</div>
+                                <h3>Получите доступ</h3>
+                                <p>Наслаждайтесь скидками и привилегиями сразу после оплаты</p>
+                            </div>
+                            <div class="step-card card">
+                                <div class="step-number">3</div>
+                                <h3>Экономьте</h3>
+                                <p>Делайте покупки с выгодой до 30% на все товары</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="club-section">
+                        <h2>Часто задаваемые вопросы</h2>
+                        <div class="faq-list">
+                            <div class="faq-item card">
+                                <h3>Как оплачивается подписка?</h3>
+                                <p>Подписка оплачивается ежемесячно. После оформления подписки с вашей карты будет списываться 350 ₽ каждый месяц до тех пор, пока вы не отмените подписку.</p>
+                            </div>
+                            <div class="faq-item card">
+                                <h3>Можно ли отменить подписку?</h3>
+                                <p>Да, вы можете отменить подписку в любое время в разделе "Профиль". Доступ к привилегиям сохраняется до окончания оплаченного периода.</p>
+                            </div>
+                            <div class="faq-item card">
+                                <h3>Какие товары участвуют в программе?</h3>
+                                <p>Скидки распространяются на все товары в каталоге, кроме специальных предложений и акционных товаров.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Services Page -->
+            <div id="services-page" class="hidden">
+                <div class="container">
+                    <div class="page-header">
+                        <h2>Дополнительные услуги</h2>
+                        <span class="age-restriction-badge">18+</span>
+                    </div>
+                    
+                    <div class="services-intro">
+                        <p>Услуги добавляются на этапе оформления заказа</p>
+                    </div>
+                    
+                    <div class="services-info">
+                        <div class="card">
+                            <h3>Как добавить услуги?</h3>
+                            <p>Выберите товары, добавьте их в корзину и перейдите к оформлению заказа. На этапе оформления вы сможете выбрать необходимые дополнительные услуги.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="services-grid">
+                        <div class="service-card">
+                            <div class="service-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+                            </div>
+                            <h3>Доставка в Нарьян-Мар</h3>
+                            <p class="service-description">Быстрая и надежная доставка по городу Нарьян-Мар</p>
+                            <div class="service-price">50 ₽</div>
+                        </div>
+                        
+                        <div class="service-card">
+                            <div class="service-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+                            </div>
+                            <h3>Доставка в рп. Искатели</h3>
+                            <p class="service-description">Доставка в поселок Искатели</p>
+                            <div class="service-price">15 ₽</div>
+                        </div>
+                        
+                        <div class="service-card">
+                            <div class="service-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-11.5l6 4.5-6 4.5z"/></svg>
+                            </div>
+                            <h3>Точное время доставки</h3>
+                            <p class="service-description">Укажите удобное время доставки</p>
+                            <div class="service-price">+10 ₽</div>
+                        </div>
+                        
+                        <div class="service-card">
+                            <div class="service-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-11.5l6 4.5-6 4.5z"/></svg>
+                            </div>
+                            <h3>Пакет</h3>
+                            <p class="service-description">Экологичный пакет для переноски покупок</p>
+                            <div class="service-price">8 ₽</div>
+                        </div>
+                        
+                        <div class="service-card">
+                            <div class="service-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-11.5l6 4.5-6 4.5z"/></svg>
+                            </div>
+                            <h3>Подарочная упаковка</h3>
+                            <p class="service-description">Красивая упаковка для подарка</p>
+                            <div class="service-price">35 ₽</div>
+                        </div>
+                        
+                        <div class="service-card">
+                            <div class="service-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-11.5l6 4.5-6 4.5z"/></svg>
+                            </div>
+                            <h3>Открытка</h3>
+                            <p class="service-description">Персонализированная открытка с вашим сообщением</p>
+                            <div class="service-price">50 ₽</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cart Page -->
+            <div id="cart-page" class="hidden">
+                <div class="container">
+                    <div class="cart-header">
+                        <h2>Ваша корзина</h2>
+                        <span class="age-restriction-badge">18+</span>
+                    </div>
+                    <div class="cart-layout">
+                        <div id="cart-items" class="cart-items">
+                            <!-- Cart items will be loaded here -->
+                        </div>
+                        <div class="cart-sidebar">
+                            <div class="cart-summary">
+                                <div class="cart-total">
+                                    <span>Итого:</span>
+                                    <span id="cart-total">0 руб</span>
+                                </div>
+                                <button id="checkout-button" class="btn btn-block">Оформить заказ</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Profile Page -->
+            <div id="profile-page" class="hidden">
+                <div class="container">
+                    <div class="profile-header">
+                        <h2>Профиль</h2>
+                        <span class="age-restriction-badge">18+</span>
+                    </div>
+                    
+                    <div class="profile-layout">
+                        <div class="profile-main">
+                            <div class="settings-panel">
+                                <h3>Настройки</h3>
+                                <div class="settings-group">
+                                    <div class="setting-item">
+                                        <span class="setting-label">Тема</span>
+                                        <select id="theme-selector" class="form-control" style="width: auto;">
+                                            <option value="light">Светлая</option>
+                                            <option value="dark">Темная</option>
+                                        </select>
+                                    </div>
+                                    <div class="setting-item">
+                                        <span class="setting-label">Уведомления</span>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="notifications-toggle" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="settings-group">
+                                    <h3>Аккаунт</h3>
+                                    <div class="setting-item">
+                                        <span class="setting-label">Статус подписки ZeSt Club</span>
+                                        <span id="subscription-status-text">Не активна</span>
+                                    </div>
+                                    <button id="toggle-subscription" class="btn">Управление подпиской</button>
+                                    <button id="clear-data-button" class="btn btn-outline" style="margin-top: 1rem;">Очистить данные</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="profile-sidebar">
+                            <div class="order-history">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                    <h3>История заказов</h3>
+                                    <button id="refresh-orders" class="btn btn-sm">Обновить</button>
+                                </div>
+                                <div id="orders-list">
+                                    <!-- Orders will be loaded here -->
+                                    <p id="no-orders-message">У вас пока нет заказов</p>
+                                    <div id="orders-container"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <div class="nav-button active" data-page="catalog">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                <span>Главная</span>
+            </div>
+            <div class="nav-button" data-page="club">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                <span>ZeSt Club</span>
+            </div>
+            <div class="nav-button" data-page="services">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1z"/></svg>
+                <span>Услуги</span>
+            </div>
+            <div class="nav-button" data-page="cart">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                <span>Корзина</span>
+                <span class="cart-count" id="bottom-nav-cart-count">0</span>
+            </div>
+            <div class="nav-button" data-page="profile">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                <span>Профиль</span>
+            </div>
+        </nav>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
